@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>留言板</title>
+  <link rel="stylesheet" href="./assets/bootstrap.css">
+  <script src="./assets/jquery.min.js"></script>
+  <script src="./assets/layer.js"></script>
+</head>
+
+<body>
+  <div class="container">
+    <h1 class="display-1">留言板</h1>
+    <hr>
+    <ul id="messages" class="list-unstyled">
+      <!-- <li class="media">
+        <img class="mr-3" src="./assets/avatar.png" alt="张三">
+        <div class="media-body">
+          <h4>张三</h4>
+          <p>哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈</p>
+        </div>
+      </li> -->
+    </ul>
+    <hr>
+    {{if !isLogin}}
+    <div>
+      <p>点击<a id="show_box" href="javascript:;">登录</a>，发表你的留言吧~</p>
+    </div>
+    {{else}}
+    <form id="fm" >
+      <!-- <div class="form-group">
+        <label for="txt_name">称呼：</label>
+        <input name="m_name" class="form-control" id="txt_name" type="text">
+      </div> -->
+      <div class="form-group">
+        <label for="txt_content">留言：</label>
+        <textarea name="m_content" class="form-control" id="txt_content" cols="80" rows="10"></textarea>
+      </div>
+      <button type="button" id="btn_send" class="btn btn-primary">提交</button>
+    </form>
+    {{/if}}
+  </div>
+
+  <script>
+    let content = `
+    <form style="margin:20px 0 0 60px">
+        <div class="form-group">
+          <label for="user" stype="display:inline;">账户：</label>
+          <input name="u_name" type="text" class="form-control" id="user" style="display:inline;width:200px;" autocomplete="off" />
+        </div>
+        <div class="form-group">
+          <label for="password" style="display:inline;">密码：</label>
+          <input name="u_pwd" type="text" class="form-control" id="password" style="display:inline;width:200px;"
+            autocomplete="off" />
+        </div>
+        <button id="btn_login" type="button" class="btn btn-primary" style="margin-left: 80px;">登录</button>
+        <span>还没账号，马上<a href="javascript:;">注册</a></span>
+      </form>
+    `;
+
+    $('#show_box').click(function () {
+      //页面层
+      layer.open({
+        type: 1,
+        title: '登录',
+        skin: 'layui-layer-rim', //加上边框
+        area: ['420px', '280px'], //宽高
+        content: content
+      });
+    });
+
+  </script>
+
+  <script>
+    $.get('/getMsg', function(data){
+      //服务器返回的数据
+      // console.log(data)
+      $('#messages').html(data)
+
+    })
+  </script>
+
+  <script>
+    $('body').on('click', '#btn_login', function(){
+      //console.log(111) //可以在页面内console里面看到111
+      var d = $(this).parents('form').serialize();   //
+      // console.log(w)  u_name=1&u_pwd=1
+      $.post('/login', d, function(data){
+        // console.log(data) //0或1
+        $('.layui-layer-close').click();
+        if(data==='1'){
+            // $('#fm').show();
+            // location.href='/message.html';
+            location.reload(true);
+        }
+      })
+    })
+
+  </script>
+
+
+<script>
+  //完成留言发布
+  $('#btn_send').click(function(){
+    //收集留言内容
+    var d = $('#fm').serialize();
+    // var dd = $('#fm').serializeArray(); //[{name:"m_name", value:"jack"}, {name:"m_content", value:"23"}]
+    // console.log(dd)
+    $.post('/addMsg', d, function(data){
+      //data 表示服务器返回的数据
+      // console.log(data)//判断data是多少
+      // if(data === '1'){
+        //添加成功
+        var str = `
+        <li class="media">
+          <img class="mr-3" src="./assets/avatar.png" alt="${data.m_name}">
+          <div class="media-body">
+            <h4>${data.m_name}</h4>
+            <p>${data.m_content}</p>
+            <p>${data.m_time}</p>
+          </div>
+        </li>`
+        $('#messages').append(str)
+        $('#txt_content').val('');
+      // };
+    })
+  })
+
+
+</script>
+
+</body>
+
+</html>

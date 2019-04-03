@@ -1,0 +1,10 @@
+{{each xyz}}
+<li class="media">
+    <img class="mr-3" src="./assets/avatar.png" alt="{{$value.m_name}}">
+    <div class="media-body">
+        <h4>{{$value.m_name}}</h4>
+        <p>{{$value.m_content}}</p>
+        <p>{{$value.m_time|mytime}}</p>
+    </div>
+</li>
+{{/each}}
